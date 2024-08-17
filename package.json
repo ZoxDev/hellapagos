@@ -13,9 +13,11 @@
   },
   "type": "module",
   "dependencies": {
-    "excalibur": "^0.29.3"
+    "excalibur": "^0.29.3",
+    "xstate": "^5.17.4"
   },
   "scripts": {
-    "check": "bunx biome check --write src"
+    "check": "bunx biome check --write src",
+    "test": "vitest"
   }
 }
