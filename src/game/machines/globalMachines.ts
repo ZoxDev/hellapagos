@@ -1,5 +1,7 @@
 import { assign, createMachine, createActor } from "xstate";
 
+// TODO: type these shits
+
 const waterMachine = createMachine({
 	context: {
 		water: 10,
