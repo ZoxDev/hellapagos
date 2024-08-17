@@ -1,4 +1,7 @@
-import type { Cards, Rarity } from "../types";
+import type { CrashedBoatCard } from "../cards/crashedBoatCards";
+import type { WeatherCard } from "../cards/allWeatherCards";
+import type { Rarity } from "../types";
+import { getRandomInt } from "./math";
 
 export const foodRoll = (rollResult: number) => {
 	if (rollResult >= 1 && rollResult <= 3) return 1;
@@ -12,12 +15,26 @@ const rarityCardProbability = (rollResult: number): Rarity => {
 	return "rare";
 };
 
-export const dropedCard = (cards: Cards) => {
-	const { cards: cardsData } = cards;
-
-	const roll = Math.floor(Math.random() * 6) + 1;
+export const drawCrashedBoatCard = (cards: CrashedBoatCard[]) => {
+	const roll = getRandomInt(1, 6);
 	const rarity = rarityCardProbability(roll);
 
-	const dropedCards = cardsData.filter((card) => card.rarity === rarity);
-	return dropedCards[Math.floor(Math.random() * dropedCards.length)];
+	const cardsByRarity = cards.filter((card) => card.rarity === rarity);
+	const card = cardsByRarity[Math.floor(Math.random() * cardsByRarity.length)];
+
+	return card;
+};
+
+export const drawWeatherCard = (cards: WeatherCard[]) => {
+	// when there is only the storm card left, draw it
+	// biome-ignore lint/style/noNonNullAssertion: <explanation>
+	if (cards.length === 1 && cards[0]!.weather === "storm") return cards[0];
+
+	const roll = getRandomInt(1, 6);
+	const rarity = rarityCardProbability(roll);
+
+	const cardsByRarity = cards.filter((card) => card.rarity === rarity);
+	const card = cardsByRarity[Math.floor(Math.random() * cardsByRarity.length)];
+
+	return card;
 };
