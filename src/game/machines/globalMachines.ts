@@ -2,47 +2,6 @@ import { assign, createMachine, createActor, setup } from "xstate";
 import { foodRoll } from "../utils/probability";
 import { getRandomInt } from "../utils/math";
 
-// TODO: type these shits
-
-const waterMachine = createMachine({
-	context: {
-		water: 10,
-	},
-	on: {
-		INC_WATER_COUNT: {
-			actions: assign({
-				water: ({ event }) => event.value,
-			}),
-		},
-		DEC_WATER_COUNT: {
-			actions: assign({
-				water: ({ event }) => event.value,
-			}),
-		},
-	},
-});
-
-const foodMachine = createMachine({
-	context: {
-		food: 10,
-	},
-	on: {
-		INC_FOOD_COUNT: {
-			actions: assign({
-				food: ({ event }) => event.value,
-			}),
-		},
-		DEC_FOOD_COUNT: {
-			actions: assign({
-				food: ({ event }) => event.value,
-			}),
-		},
-	},
-});
-
-export const waterActor = createActor(waterMachine, "water");
-export const foodActor = createActor(foodMachine, "food");
-
 const playerTurnMachine = setup({
 	types: {
 		events: {} as
