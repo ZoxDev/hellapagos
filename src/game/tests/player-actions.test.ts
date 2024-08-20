@@ -1,12 +1,10 @@
 import { describe, test, expect } from "vitest";
-import { drawWeatherCard, foodRoll } from "./utils/probability.js";
-
-import { allWeatherCards, type WeatherCard } from "./cards/allWeatherCards.js";
-import { getRandomInt } from "./utils/math.js";
 import {
-	drawAndDeleteWeatherCard,
 	getWeatherCards,
-} from "./actions/weatherCardActions.js";
+	drawAndDeleteWeatherCard,
+} from "../actions/weatherCardActions";
+import { getRandomInt } from "../utils/math";
+import { foodRoll } from "../utils/probability";
 
 // start of the game set (player / card order)
 const playerCount = getRandomInt(3, 12);
