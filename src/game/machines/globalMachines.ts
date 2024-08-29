@@ -1,6 +1,9 @@
 import { assign, createMachine, createActor, setup } from "xstate";
 import { foodRoll } from "../utils/probability";
 import { getRandomInt } from "../utils/math";
+import type { WeatherCard } from "../cards/allWeatherCards";
+import type { CrashedBoatCard } from "../cards/crashedBoatCards";
+import { useContext } from "excalibur/build/dist/Context";
 
 const playerTurnMachine = setup({
 	types: {
@@ -17,10 +20,15 @@ const playerTurnMachine = setup({
 			food: number;
 			water: number;
 			weatherWater: number;
+			playerCards: CrashedBoatCard[];
+			crashBoatCards: CrashedBoatCard[];
+			weatherCards: WeatherCard[];
 		},
 		input: {} as {
 			playerCount: number;
 			weatherWater: number;
+			crashBoatCards: CrashedBoatCard[];
+			weatherCards: WeatherCard[];
 		},
 	},
 	actions: {
@@ -39,9 +47,18 @@ const playerTurnMachine = setup({
 				food: context.food + food,
 			};
 		}),
-		"draw card": () => {
-			return {};
-		},
+		"draw card": assign(({ context }) => {
+			const index = getRandomInt(0, context.crashBoatCards.length);
+			const drawedCard = context.crashBoatCards[index];
+
+			if (!drawedCard) throw new Error("There is no card left in the bank");
+
+			return {
+				...context,
+				playerCards: context.playerCards.concat(drawedCard),
+				crashBoatCards: context.crashBoatCards.splice(index, 1),
+			};
+		}),
 		"gamble amount": () => {
 			return {};
 		},
@@ -49,6 +66,7 @@ const playerTurnMachine = setup({
 			return {};
 		},
 		"play this card": () => {
+			// factory of all effect on card or something like this
 			return {};
 		},
 		"move forward": () => {
@@ -72,6 +90,7 @@ const playerTurnMachine = setup({
 			food: input.playerCount,
 			water: 0,
 			weatherWater: input.weatherWater,
+			playerCards: [],
 		}),
 		states: {
 			Idle: {
@@ -94,6 +113,18 @@ const playerTurnMachine = setup({
 					},
 				},
 			},
+			"Await Player Decision": {
+				on: {
+					"Gamgle wood": [
+						{
+							guard: "is gamgling",
+							actions: "gamble amount",
+							target: "Gamble",
+						},
+						{ target: "Main Action Done" },
+					],
+				},
+			},
 			"Main Action Done": {
 				on: {
 					"End turn": {
@@ -105,18 +136,6 @@ const playerTurnMachine = setup({
 							actions: "play this card",
 						},
 						{ actions: "play this card", target: "End of turn" },
-					],
-				},
-			},
-			"Await Player Decision": {
-				on: {
-					"Gamgle wood": [
-						{
-							guard: "is gamgling",
-							actions: "gamble amount",
-							target: "Gamble",
-						},
-						{ target: "Main Action Done" },
 					],
 				},
 			},

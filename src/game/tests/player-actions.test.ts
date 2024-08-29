@@ -5,6 +5,10 @@ import {
 } from "../actions/weatherCardActions";
 import { getRandomInt } from "../utils/math";
 import { foodRoll } from "../utils/probability";
+import {
+	crashedBoatCards,
+	type CrashedBoatCard,
+} from "../cards/crashedBoatCards";
 
 // start of the game set (player / card order)
 const playerCount = getRandomInt(3, 12);
@@ -46,6 +50,25 @@ describe("player actions during round", () => {
 
 		expect(waterAmount >= 0 && waterAmount <= 3).toMatchInlineSnapshot(`true`);
 		expect(card.weather !== "storm").toMatchInlineSnapshot(`true`);
+	});
+
+	test("player draw a card", () => {
+		// Setup the game cards
+		const playerCards: CrashedBoatCard[] = [];
+		const cards = crashedBoatCards;
+
+		const index = getRandomInt(0, cards.length);
+		const drawedCard = cards[index];
+
+		if (!drawedCard) throw new Error("There is no card left in the bank");
+
+		playerCards.push(drawedCard);
+		cards.splice(index, 1);
+
+		expect(playerCards[0] === drawedCard).toMatchInlineSnapshot(`true`);
+		expect(cards.find((card) => card === drawedCard)).toMatchInlineSnapshot(
+			`undefined`,
+		);
 	});
 });
 
