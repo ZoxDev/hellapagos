@@ -4,37 +4,47 @@ import type { Rarity } from "../types";
 import { getRandomInt } from "./math";
 
 export const foodRoll = (rollResult: number) => {
-	if (rollResult >= 1 && rollResult <= 3) return 1;
-	if (rollResult >= 4 && rollResult <= 5) return 2;
-	return 3;
+  if (rollResult >= 1 && rollResult <= 3) return 1;
+  if (rollResult >= 4 && rollResult <= 5) return 2;
+  return 3;
 };
 
 const rarityCardProbability = (rollResult: number): Rarity => {
-	if (rollResult >= 1 && rollResult <= 3) return "common";
-	if (rollResult >= 4 && rollResult <= 5) return "uncommon";
-	return "rare";
+  if (rollResult >= 1 && rollResult <= 3) return "common";
+  if (rollResult >= 4 && rollResult <= 5) return "uncommon";
+  return "rare";
 };
 
 export const drawCrashedBoatCard = (cards: CrashedBoatCard[]) => {
-	const roll = getRandomInt(1, 6);
-	const rarity = rarityCardProbability(roll);
+  const roll = getRandomInt(1, 6);
+  const rarity = rarityCardProbability(roll);
 
-	const cardsByRarity = cards.filter((card) => card.rarity === rarity);
-	const card = cardsByRarity[Math.floor(Math.random() * cardsByRarity.length)];
+  const cardsByRarity = cards.filter((card) => card.rarity === rarity);
+  const card = cardsByRarity[Math.floor(Math.random() * cardsByRarity.length)];
 
-	return card;
+  if (!card) throw new Error("no crashed boat cards left");
+
+  return card;
 };
 
 export const drawWeatherCard = (cards: WeatherCard[]) => {
-	// when there is only the storm card left, draw it
-	// biome-ignore lint/style/noNonNullAssertion: <explanation>
-	if (cards.length === 1 && cards[0]!.weather === "storm") return cards[0];
+  // when there is only the storm card left, draw it
+  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  if (cards.length === 1 && cards[0]!.weather === "storm") {
+    const card = cards[0];
 
-	const roll = getRandomInt(1, 6);
-	const rarity = rarityCardProbability(roll);
+    if (!card) throw new Error("There is no more cards");
 
-	const cardsByRarity = cards.filter((card) => card.rarity === rarity);
-	const card = cardsByRarity[Math.floor(Math.random() * cardsByRarity.length)];
+    return card;
+  }
 
-	return card;
+  const roll = getRandomInt(1, 6);
+  const rarity = rarityCardProbability(roll);
+
+  const cardsByRarity = cards.filter((card) => card.rarity === rarity);
+  const card = cardsByRarity[Math.floor(Math.random() * cardsByRarity.length)];
+
+  if (!card) throw new Error("no crashed boat cards left");
+
+  return card;
 };
