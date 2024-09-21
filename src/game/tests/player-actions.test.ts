@@ -5,6 +5,7 @@ import {
   drawCrashedBoatCard,
   drawWeatherCard,
   foodRoll,
+  gambleWood,
 } from "../utils/probability";
 import {
   crashedBoatCards,
@@ -53,7 +54,6 @@ describe("player actions during round", () => {
 
   test("player gather water", () => {
     // Simulate the start draw of the weather card
-    const weatherCard = getWeatherCards();
     const cards = allWeatherCards;
 
     const card = drawWeatherCard(cards);
@@ -81,6 +81,22 @@ describe("player actions during round", () => {
     expect(cards.find((card) => card === drawedCard)).toMatchInlineSnapshot(
       `undefined`
     );
+  });
+
+  test("gamble wood amoumt from 1 to 5", () => {
+    // setup
+    // biome-ignore lint/style/useConst: <explanation>
+    let poisonedStatus: boolean;
+    const gambleAmount = getRandomInt(1, 5);
+
+    // the test
+    const isPoisoned = gambleWood(gambleAmount);
+    poisonedStatus = isPoisoned;
+
+    expect(
+      (gambleAmount >= 4 && poisonedStatus === true) ||
+        (gambleAmount <= 3 && poisonedStatus === false)
+    ).toMatchInlineSnapshot("true");
   });
 });
 

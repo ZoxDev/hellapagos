@@ -9,6 +9,11 @@ export const foodRoll = (rollResult: number) => {
   return 3;
 };
 
+export const gambleWood = (gambleAmount: number) => {
+  if (gambleAmount >= 1 && gambleAmount <= 3) return false;
+  return true;
+};
+
 const rarityCardProbability = (rollResult: number): Rarity => {
   if (rollResult >= 1 && rollResult <= 3) return "common";
   if (rollResult >= 4 && rollResult <= 5) return "uncommon";
