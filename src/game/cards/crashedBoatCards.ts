@@ -2,7 +2,7 @@ import type { CardType, Rarity } from "../types";
 import { getRandomInt } from "../utils/math";
 import type { WeatherCard } from "./allWeatherCards";
 
-type EffectParams = {
+export type EffectParams = {
 	foodAmount: number;
 	waterAmount: number;
 	bulletAmout: number;

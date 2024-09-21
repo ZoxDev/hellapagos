@@ -5,11 +5,17 @@ import type { CrashedBoatCard } from "../cards/crashedBoatCards";
  * this function mutate the array of card to delete the choosen one 🙇‍♂️
  * -----------------------------------------------------------------------------*/
 export const deleteCard = (
-  cardToDelete: CrashedBoatCard | WeatherCard,
-  cards: CrashedBoatCard[] | WeatherCard[]
+	cardToDelete: CrashedBoatCard | WeatherCard,
+	cards: CrashedBoatCard[] | WeatherCard[],
 ) => {
-  const index = cards.findIndex((card) => card.id === cardToDelete.id);
-  cards.splice(index, 1);
+	const index = cards.findIndex((card) => card.id === cardToDelete.id);
+	cards.splice(index, 1);
 
-  return cards;
+	return cards;
 };
+
+export const reverseStatus = (status: boolean) => {
+	return !status;
+};
+
+// TODO: give back card
