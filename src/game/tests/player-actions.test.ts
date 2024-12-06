@@ -1,17 +1,13 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { getWeatherCards } from "../actions/weatherCardActions";
-import { getRandomInt } from "../utils/math";
+import { type WeatherCard, allWeatherCards } from "../cards/allWeatherCards";
 import {
-	drawCrashedBoatCard,
-	drawWeatherCard,
-	foodRoll,
-} from "../utils/probability";
-import {
-	crashedBoatCards,
 	type CrashedBoatCard,
+	crashedBoatCards,
 } from "../cards/crashedBoatCards";
-import { deleteCard, reverseStatus } from "../utils/utils";
-import { allWeatherCards, type WeatherCard } from "../cards/allWeatherCards";
+import { getRandomInt } from "../utils/math";
+import { drawWeatherCard, foodRoll } from "../utils/probability";
+import { deleteCard } from "../utils/utils";
 
 // start of the game set (player / card order)
 const playerCount = getRandomInt(3, 12);
@@ -44,14 +40,14 @@ describe("test for the start of the round", () => {
 
 // player actions during round
 describe("player actions during round", () => {
-	test("gather food", () => {
+	test("add_food", () => {
 		const number = getRandomInt(1, 6);
 		const food = foodRoll(number);
 
 		expect(food >= 1 && food <= 3).toMatchInlineSnapshot(`true`);
 	});
 
-	test("player gather water", () => {
+	test("add_water", () => {
 		// Simulate the start draw of the weather card
 		const weatherCard = getWeatherCards();
 		const cards = allWeatherCards;
@@ -64,7 +60,20 @@ describe("player actions during round", () => {
 		expect(card.weather !== "storm").toMatchInlineSnapshot(`true`);
 	});
 
-	test("player draw a card", () => {
+	test("gamble_wood", () => {
+		// init
+		let poisoned: boolean;
+
+		// the player want 4 wood
+		const gambleAmount = 4;
+
+		// gambling
+		const gambling = getRandomInt(gambleAmount, 7);
+		if (gambleAmount <= gambling) poisoned = true;
+		poisoned = false;
+	});
+
+	test("draw_card", () => {
 		// Setup the game cards
 		const playerCards: CrashedBoatCard[] = [];
 		const cards = crashedBoatCards;

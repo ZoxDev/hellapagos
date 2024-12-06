@@ -4,14 +4,14 @@ import type { CrashedBoatCard } from "../cards/crashedBoatCards";
 const playerTurnMachine = setup({
 	types: {
 		events: {} as
-			| { type: "Take water" }
-			| { type: "Take food" }
-			| { type: "Special action" }
-			| { type: "Take a card" }
-			| { type: "Gather Wood" }
-			| { type: "Play the card"; cardId: number }
-			| { type: "Gamgle wood"; amount: number }
-			| { type: "End turn" },
+			| { type: "take_water" }
+			| { type: "take_food" }
+			| { type: "special_action" }
+			| { type: "take_a_card" }
+			| { type: "gather_wood" }
+			| { type: "play_the_card" }
+			| { type: "gambling" }
+			| { type: "end_turn" },
 		context: {} as {
 			food: number;
 			water: number;
@@ -26,35 +26,38 @@ const playerTurnMachine = setup({
 		},
 	},
 	actions: {
-		"add water": () => {
+		// ressources action
+		add_water: ({ context }) => {
 			return {};
 		},
-		"add food": () => {
+		add_food: () => {
 			return {};
 		},
-		"draw card": () => {
+		gamble_wood: () => {
 			return {};
 		},
-		"gamble amount": () => {
+		add_wood: () => {
 			return {};
 		},
+		// card actions
+		draw_card: () => {
+			return {};
+		},
+		play_this_card: () => {
+			return {};
+		},
+		// general actions
 		poisoned: () => {
 			return {};
 		},
-		"play this card": () => {
-			return {};
-		},
-		"move forward": () => {
-			return {};
-		},
-		"add quantity": () => {
+		move_forward: () => {
 			return {};
 		},
 	},
 	guards: {
-		"has card left": () => true,
-		"is gamgling": () => true,
-		"has succeeded": () => true,
+		has_card_left: () => true,
+		is_gamgling: () => true,
+		has_succeeded: () => true,
 	},
 })
 	.createMachine({
@@ -70,44 +73,43 @@ const playerTurnMachine = setup({
 		states: {
 			Idle: {
 				on: {
-					"Take water": {
-						actions: "add water",
+					take_water: {
+						actions: "add_water",
 						target: "Main Action Done",
 					},
-					"Take food": {
-						actions: "add food",
+					take_food: {
+						actions: "add_food",
 						target: "Main Action Done",
 					},
-					"Take a card": {
-						actions: "draw card",
+					take_a_card: {
+						actions: "draw_card",
 						target: "Main Action Done",
 					},
-					"Gather Wood": {
-						actions: "move forward",
+					gather_wood: {
+						actions: "move_forward",
 						target: "Await Player Decision",
 					},
 				},
 			},
 			"Main Action Done": {
 				on: {
-					"End turn": {
+					end_turn: {
 						target: "End of turn",
 					},
-					"Play the card": [
+					play_the_card: [
 						{
-							guard: "has card left",
-							actions: "play this card",
+							guard: "has_card_left",
+							actions: "play_this_card",
 						},
-						{ actions: "play this card", target: "End of turn" },
 					],
 				},
 			},
 			"Await Player Decision": {
 				on: {
-					"Gamgle wood": [
+					gambling: [
 						{
-							guard: "is gamgling",
-							actions: "gamble amount",
+							guard: "is_gamgling",
+							actions: "gamble_wood",
 							target: "Gamble",
 						},
 						{ target: "Main Action Done" },
@@ -117,8 +119,8 @@ const playerTurnMachine = setup({
 			Gamble: {
 				always: [
 					{
-						guard: "has succeeded",
-						actions: "add quantity",
+						guard: "has_succeeded",
+						actions: "add_wood",
 						target: "Main Action Done",
 					},
 					{ actions: "poisoned", target: "End of turn" },
