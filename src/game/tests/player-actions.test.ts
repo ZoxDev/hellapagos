@@ -40,16 +40,8 @@ describe("test for the start of the round", () => {
 
 // player actions during round
 describe("player actions during round", () => {
-	test("add_food", () => {
-		const number = getRandomInt(1, 6);
-		const food = foodRoll(number);
-
-		expect(food >= 1 && food <= 3).toMatchInlineSnapshot(`true`);
-	});
-
 	test("add_water", () => {
 		// Simulate the start draw of the weather card
-		const weatherCard = getWeatherCards();
 		const cards = allWeatherCards;
 
 		const card = drawWeatherCard(cards);
@@ -60,6 +52,13 @@ describe("player actions during round", () => {
 		expect(card.weather !== "storm").toMatchInlineSnapshot(`true`);
 	});
 
+	test("add_food", () => {
+		const number = getRandomInt(1, 6);
+		const food = foodRoll(number);
+
+		expect(food >= 1 && food <= 3).toMatchInlineSnapshot(`true`);
+	});
+
 	test("gamble_wood", () => {
 		// init
 		let poisoned: boolean;
@@ -68,8 +67,8 @@ describe("player actions during round", () => {
 		const gambleAmount = 4;
 
 		// gambling
-		const gambling = getRandomInt(gambleAmount, 7);
-		if (gambleAmount <= gambling) poisoned = true;
+		const gambling = getRandomInt(0, 6);
+		if (gambleAmount >= gambling) poisoned = true;
 		poisoned = false;
 	});
 
