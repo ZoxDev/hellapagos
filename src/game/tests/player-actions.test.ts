@@ -60,6 +60,15 @@ describe("player actions during round", () => {
 	});
 
 	test("gamble_wood", () => {
+		/* -----------------------------------------------------------------------------
+		 * gambleAmount = 1 : true = 0%, false = 100%
+		 * gambleAmount = 2 : true = 16.67%, false = 83.33%
+		 * gambleAmount = 3 : true = 33.33%, false = 66.67%
+		 * gambleAmount = 4 : true = 50%, false = 50%
+		 * gambleAmount = 5 : true = 66.67%, false = 33.33%
+		 * gambleAmount = 6 : true = 83.33%, false = 16.67%
+		 * -----------------------------------------------------------------------------*/
+
 		// init
 		let poisoned: boolean;
 
@@ -67,8 +76,8 @@ describe("player actions during round", () => {
 		const gambleAmount = 4;
 
 		// gambling
-		const gambling = getRandomInt(0, 6);
-		if (gambleAmount >= gambling) poisoned = true;
+		const gambling = getRandomInt(1, 6);
+		if (gambleAmount > gambling) poisoned = true;
 		poisoned = false;
 	});
 
