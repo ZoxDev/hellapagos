@@ -9,10 +9,9 @@ const playerTurnMachine = setup({
 		events: {} as
 			| { type: "take_water" }
 			| { type: "take_food" }
-			| { type: "special_action" }
 			| { type: "take_a_card" }
 			| { type: "gather_wood" }
-			| { type: "play_the_card" }
+			| { type: "play_the_card"; card: CrashedBoatCard }
 			| { type: "gambling"; amount: number }
 			| { type: "end_turn" },
 		context: {} as {
@@ -22,6 +21,7 @@ const playerTurnMachine = setup({
 			waterInWeatherCard: number;
 			playerPosition: number;
 			playerCards: CrashedBoatCard[];
+			permanentPlayerCards: CrashedBoatCard[];
 			crashedBoatCards: CrashedBoatCard[];
 			weatherCards: WeatherCard[];
 			poisoned: boolean;
@@ -49,9 +49,10 @@ const playerTurnMachine = setup({
 
 			const gambling = getRandomInt(1, 6);
 
-			if (event.amount > gambling) return { poisoned: true };
-
-			return { wood: context.wood + event.amount };
+			return {
+				wood:
+					event.amount > gambling ? context.wood + event.amount : context.wood,
+			};
 		}),
 		not_gambling: assign(({ context }) => {
 			return { wood: context.wood + 1 };
@@ -77,94 +78,108 @@ const playerTurnMachine = setup({
 				crashedBoatCards: context.crashedBoatCards.splice(index, 1),
 			};
 		}),
-		play_this_card: () => {
-			return {};
-		},
+		play_this_card: assign(({ context, event }) => {
+			assertEvent(event, "play_the_card");
+
+			const card = event.card;
+
+			if (!card.isPermanent && !card.effect)
+				throw new Error("(play_this_card) this card is unplayable");
+
+			return {
+				permanentPlayerCards: card.isPermanent
+					? [...context.permanentPlayerCards, card]
+					: context.permanentPlayerCards,
+			};
+		}),
 		// general actions
-		poisoned: () => {
-			return {};
-		},
-		move_forward: () => {
-			return {};
-		},
+		poisoned: assign(({ context }) => {
+			return {
+				poisoned: !context.poisoned,
+			};
+		}),
+		move_forward: assign(({ context }) => {
+			return {
+				playerPosition: context.playerPosition + 1,
+			};
+		}),
 	},
 	guards: {
 		has_card_left: () => true,
 		is_gamgling: () => true,
 		has_succeeded: () => true,
 	},
-})
-	.createMachine({
-		id: "playerTurn",
-		initial: "Idle",
-		context: ({ input }) => ({
-			food: input.playerCount * 3,
-			water: input.playerCount * 3,
-			wood: 0,
-			playerPosition: 0,
-			playerCards: [],
-			waterInWeatherCard: 0,
-			crashedBoatCards: input.crashedBoatCards,
-			weatherCards: input.weatherCards,
-			poisoned: false,
-		}),
-		states: {
-			Idle: {
-				on: {
-					take_water: {
-						actions: ["draw_weather_card", "add_water"],
-						target: "Main Action Done",
-					},
-					take_food: {
-						actions: "add_food",
-						target: "Main Action Done",
-					},
-					take_a_card: {
-						actions: "draw_crashed_card",
-						target: "Main Action Done",
-					},
-					gather_wood: {
-						target: "Await Player Decision",
-					},
+}).createMachine({
+	id: "playerTurn",
+	initial: "Idle",
+	context: ({ input }) => ({
+		food: input.playerCount * 3,
+		water: input.playerCount * 3,
+		wood: 0,
+		playerPosition: 0,
+		playerCards: [],
+		permanentPlayerCards: [],
+		waterInWeatherCard: 0,
+		crashedBoatCards: input.crashedBoatCards,
+		weatherCards: input.weatherCards,
+		poisoned: false,
+	}),
+	states: {
+		Idle: {
+			on: {
+				take_water: {
+					actions: ["draw_weather_card", "add_water"],
+					target: "Main Action Done",
 				},
-			},
-			"Main Action Done": {
-				on: {
-					end_turn: {
-						target: "End of turn",
-					},
-					play_the_card: [
-						{
-							guard: "has_card_left",
-							actions: "play_this_card",
-						},
-					],
+				take_food: {
+					actions: "add_food",
+					target: "Main Action Done",
 				},
-			},
-			"Await Player Decision": {
-				on: {
-					gambling: [
-						{
-							guard: "is_gamgling",
-							actions: "gamble_wood",
-							target: "Gamble",
-						},
-						{ target: "Main Action Done", actions: "not_gambling" },
-					],
+				take_a_card: {
+					actions: "draw_crashed_card",
+					target: "Main Action Done",
 				},
-			},
-			Gamble: {
-				always: [
-					{
-						guard: "has_succeeded",
-						target: "Main Action Done",
-					},
-					{ actions: "poisoned", target: "End of turn" },
-				],
-			},
-			"End of turn": {
-				type: "final",
+				gather_wood: {
+					target: "Await Player Decision",
+				},
 			},
 		},
-	})
-	.provide({});
+		"Main Action Done": {
+			on: {
+				end_turn: {
+					target: "End of turn",
+				},
+				play_the_card: [
+					{
+						guard: "has_card_left",
+						actions: "play_this_card",
+					},
+				],
+			},
+		},
+		"Await Player Decision": {
+			on: {
+				gambling: [
+					{
+						guard: "is_gamgling",
+						actions: "gamble_wood",
+						target: "Gamble",
+					},
+					{ target: "Main Action Done", actions: "not_gambling" },
+				],
+			},
+		},
+		Gamble: {
+			always: [
+				{
+					guard: "has_succeeded",
+					target: "Main Action Done",
+				},
+				{ actions: "poisoned", target: "End of turn" },
+			],
+		},
+		"End of turn": {
+			type: "final",
+		},
+	},
+});
