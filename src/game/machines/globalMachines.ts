@@ -12,12 +12,13 @@ const playerTurnMachine = setup({
 			| { type: "take_a_card" }
 			| { type: "gather_wood" }
 			| { type: "play_the_card"; card: CrashedBoatCard }
-			| { type: "gambling"; amount: number }
+			| { type: "gambling"; amount: number; playerDecision: boolean }
 			| { type: "end_turn" },
 		context: {} as {
 			food: number;
 			water: number;
 			wood: number;
+			gambleSucceed: boolean;
 			waterInWeatherCard: number;
 			playerPosition: number;
 			playerCards: CrashedBoatCard[];
@@ -50,6 +51,7 @@ const playerTurnMachine = setup({
 			const gambling = getRandomInt(1, 6);
 
 			return {
+				gambleSucceed: event.amount > gambling,
 				wood:
 					event.amount > gambling ? context.wood + event.amount : context.wood,
 			};
@@ -105,9 +107,17 @@ const playerTurnMachine = setup({
 		}),
 	},
 	guards: {
-		has_card_left: () => true,
-		is_gamgling: () => true,
-		has_succeeded: () => true,
+		has_card_left: ({ context }) => {
+			return context.playerCards.length > 0;
+		},
+		is_gamgling: ({ event }) => {
+			assertEvent(event, "gambling");
+
+			return event.playerDecision;
+		},
+		has_succeeded: ({ context }) => {
+			return context.gambleSucceed;
+		},
 	},
 }).createMachine({
 	id: "playerTurn",
@@ -116,6 +126,7 @@ const playerTurnMachine = setup({
 		food: input.playerCount * 3,
 		water: input.playerCount * 3,
 		wood: 0,
+		gambleSucceed: false,
 		playerPosition: 0,
 		playerCards: [],
 		permanentPlayerCards: [],
