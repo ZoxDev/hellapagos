@@ -62,11 +62,9 @@ const playerTurnMachine = setup({
 		// card actions
 		draw_weather_card: assign(({ context }) => {
 			const card = drawWeatherCard(context.weatherCards);
-			const index = context.weatherCards.findIndex((el) => el.id === card.id);
 
 			return {
 				waterInWeatherCard: card.waterAmount,
-				weatherCards: context.weatherCards.splice(index, 1),
 			};
 		}),
 		draw_crashed_card: assign(({ context }) => {

@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { getWeatherCards } from "../actions/weatherCardActions";
-import { type WeatherCard, allWeatherCards } from "../cards/allWeatherCards";
+import { allWeatherCards } from "../cards/allWeatherCards";
 import {
 	type CrashedBoatCard,
 	crashedBoatCards,
 } from "../cards/crashedBoatCards";
 import { getRandomInt } from "../utils/math";
 import { drawWeatherCard, foodRoll } from "../utils/probability";
-import { deleteCard } from "../utils/utils";
 
 // start of the game set (player / card order)
 const playerCount = getRandomInt(3, 12);
@@ -26,12 +25,10 @@ describe("verify the setup start", () => {
 // test of start round
 describe("test for the start of the round", () => {
 	test("draw a weather that is not storm", () => {
-		let cards: WeatherCard[];
-		cards = allWeatherCards;
+		const cards = allWeatherCards;
 		const cardsPrevLenght = cards.length;
 
 		const card = drawWeatherCard(cards);
-		cards = deleteCard(card, cards) as WeatherCard[];
 
 		expect(card.weather !== "storm").toMatchInlineSnapshot(`true`);
 		expect(cardsPrevLenght - 1 === cards.length).toMatchInlineSnapshot(`true`);
